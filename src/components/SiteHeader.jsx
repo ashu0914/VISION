@@ -5,8 +5,8 @@ import { useHideOnScroll } from "../hooks/useHideOnScroll"
 
 // Logo files live in /public. Swap the file (or change LOGO_SRC below) to change the logo.
 
-export const LOGO_SRC = "/image/logo-full.png" // emblem only: reads well on the dark hero. Full logo (navy text) is /logo-full.png, for light sections/footer.
-export const BRAND_NAME = ""
+export const LOGO_SRC = "/image/logo-full.png"
+export const BRAND_NAME = "Vision Travel"
 
 const links = [
   { label: "Home", to: "/" },
@@ -20,10 +20,10 @@ export default function SiteHeader() {
   return (
     <header className={`sh${hidden ? " sh--hidden" : ""}`}>
       <Link to="/" className="sh-brand">
-        <img src={LOGO_SRC} alt={`${BRAND_NAME} logo`} className="sh-logo" />
+        <img src={LOGO_SRC} alt="Vision Travel - Premium Travel Agency India" className="sh-logo" />
         <span>{BRAND_NAME}</span>
       </Link>
-      <nav className="sh-nav">
+      <nav className="sh-nav" aria-label="Main navigation">
         {links.map((l) =>
           l.to ? (
             <Link key={l.to} to={l.to}>

@@ -21,9 +21,9 @@ export default function VisionHero({
   // Files: public/image/frames-jpg/ezgif-frame-001.jpg … 243
   framesPath = "/image/frames-jpg/ezgif-frame-",
   frameExt = "jpg",
-  title = "Travel that starts where the trail ends.",
-  scrollHint = "Scroll to begin",
-  tagline = "Your next escape is one scroll away.",
+  title = "Vision Travel — Discover Destinations Where the Trail Ends",
+  scrollHint = "Scroll to begin your journey",
+  tagline = "Your next dream trip is one scroll away — Plan it with Vision Travel.",
   scrubDistance = 4200, // bigger = slower scrub
   releaseDistance = 160, // extra push after last frame before unlocking
   onLockChange, // (locked: boolean) => void  — used to pause/resume Lenis

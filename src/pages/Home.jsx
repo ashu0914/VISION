@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 import SiteHeader from "../components/SiteHeader";
+import SEOHead from "../components/SEOHead";
 import VisionHero from "../components/VisionHero";
 import ButtonWithIcon from "../components/ButtonWithIcon";
 import Backgroundwater from "../components/Backgroundwater";
@@ -47,6 +48,12 @@ export default function Home() {
 
   return (
     <main>
+      <SEOHead
+        title="Best Travel Agency India – Customized Trips, Treks & Holiday Packages"
+        description="Vision Travel is India's premium travel agency. We offer customized trip planning, adventure treks in Ladakh & Manali, honeymoon packages to Goa & Kerala, family vacations, corporate retreats, and curated holiday itineraries. Book your dream trip with handpicked stays and local guides."
+        path="/"
+        keywords="travel agency India, best travel agency, customized trips India, adventure treks Ladakh, honeymoon packages Goa, family vacation packages, Manali tour packages, Rishikesh adventure, corporate retreat India, holiday packages India, trip planning, curated holidays, luxury travel India, Vision Travel, group tours"
+      />
       <SiteHeader />
 
       <VisionHero onLockChange={handleLockChange}>
@@ -54,7 +61,7 @@ export default function Home() {
         <ButtonWithIcon href="/destinations" variant="glass">Explore destinations</ButtonWithIcon>
       </VisionHero>
 
-      <section className="content-section">
+      <section className="content-section" aria-label="Why choose Vision Travel">
         <Backgroundwater />
         <div className="content-section__inner">
           <p className="content-eyebrow">Why travel with Vision</p>
@@ -71,7 +78,7 @@ export default function Home() {
       </section>
 
       {/* ── About Us Section ── */}
-      <section className="relative w-full bg-[#00C5CD] z-10 overflow-visible">
+      <section className="relative w-full bg-[#00C5CD] z-10 overflow-visible" aria-label="About Vision Travel Agency">
         <div className="flex flex-col items-center w-full pt-[100px] md:pt-[200px] pb-[40px]">
           <div className="flex flex-col items-center w-full px-8 text-center z-20 relative max-w-[900px] mx-auto">
             {/* Logo */}
@@ -83,9 +90,9 @@ export default function Home() {
             />
 
             {/* Title */}
-            <p className="text-white text-[14px] w-full max-w-[400px] leading-[1.6] mb-[32px] uppercase tracking-[0.25em] mx-auto">
-              Welcome to Vision Travel
-            </p>
+            <h2 className="text-white text-[14px] w-full max-w-[400px] leading-[1.6] mb-[32px] uppercase tracking-[0.25em] mx-auto">
+              Welcome to Vision Travel — India's Premium Travel Agency
+            </h2>
 
             {/* Cursive Signature */}
             <div className="font-marck text-white text-[100px] md:text-[120px] leading-none mb-[48px]">
@@ -140,7 +147,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="content-section" style={{ justifyContent: "center" }}>
+      <section className="content-section" style={{ justifyContent: "center" }} aria-label="Vision Travel difference">
         <Sceenry />
         <div className="content-section__inner" style={{ display: "flex", justifyContent: "center" }}>
           <TextRevealCard text="Just another vacation" revealText="A trip you'll never stop talking about">

@@ -1,0 +1,21 @@
+{
+  "name": "Vision Travel - Premium Travel Agency India",
+  "short_name": "Vision Travel",
+  "description": "Plan your dream trip with Vision Travel. Customized trips, adventure treks, honeymoon packages, family vacations and corporate retreats across India.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#06121a",
+  "theme_color": "#06121a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["travel", "tourism", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr"
+}

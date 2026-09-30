@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import SEOHead from "../components/SEOHead";
 import SiteHeader from "../components/SiteHeader";
 import DestinationsScroll from "../components/DestinationsScroll";
 import { DestinationCarousel } from "../components/ui/destination-carousel";
@@ -12,10 +13,16 @@ import { WorldMap } from "../components/ui/map";
 export default function DestinationsPage() {
   return (
     <main>
+      <SEOHead
+        title="Top Travel Destinations India – Ladakh, Goa, Manali, Rishikesh Tours"
+        description="Explore India's most breathtaking travel destinations with Vision Travel. From Ladakh treks to Goa beach getaways, Manali mountain escapes to Rishikesh adventures — discover curated travel packages and handpicked itineraries for every type of traveler."
+        path="/destinations"
+        keywords="travel destinations India, Ladakh tour packages, Goa beach holiday, Manali trip, Rishikesh adventure tour, best places to visit India, Himalayan treks, coastal getaways India, desert safari Rajasthan, India tourism, hill station tours, pilgrimage tours India"
+      />
       <SiteHeader />
       <DestinationsScroll />
 
-      <section className="destinations-carousel-section">
+      <section className="destinations-carousel-section" aria-label="Featured travel destinations India">
         <CloudShader
           className="destinations-carousel-section__sky"
           speed={0.6}
@@ -44,7 +51,7 @@ export default function DestinationsPage() {
 
 
       {/* ── World Map Section ── */}
-      <section className="relative py-20 md:py-28 bg-[#06121a]">
+      <section className="relative py-20 md:py-28 bg-[#06121a]" aria-label="Vision Travel network and destinations map">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-10">
             <p className="content-eyebrow" style={{ textAlign: "center" }}>Where we take you</p>

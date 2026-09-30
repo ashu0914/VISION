@@ -58,7 +58,7 @@ export const Footer7 = ({
   legalLinks = defaultLegalLinks,
 } = {}) => {
   return (
-    <section className="relative py-16 border-t border-white/8 overflow-hidden">
+    <footer className="relative py-16 border-t border-white/8 overflow-hidden" role="contentinfo" aria-label="Vision Travel footer">
       {/* Video background */}
       <div className="absolute inset-0 z-0">
         <video
@@ -128,6 +128,6 @@ export const Footer7 = ({
           </ul>
         </div>
       </div>
-    </section>
+    </footer>
   );
 };

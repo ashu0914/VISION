@@ -1,0 +1,28 @@
+# Vision Travel - robots.txt
+# https://visiontravel.in
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /.env
+
+# Sitemaps
+Sitemap: https://visiontravel.in/sitemap.xml
+
+# Crawl-delay (optional, polite request)
+Crawl-delay: 1
+
+# Google
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+
+# Google Images
+User-agent: Googlebot-Image
+Allow: /image/
+Allow: /favicon.svg
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Disallow: /api/

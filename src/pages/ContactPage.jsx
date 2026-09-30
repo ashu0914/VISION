@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Footer7 } from '@/components/ui/footer-7';
 import PalomarHero from '@/components/PalomarHero';
 import SiteHeader from '@/components/SiteHeader';
+import SEOHead from '@/components/SEOHead';
 
 // ── Config ──
 const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
@@ -267,9 +268,15 @@ export default function ContactPage() {
 
   return (
     <>
+    <SEOHead
+      title="Contact Us – Plan Your Dream Trip | Book Travel Package"
+      description="Get in touch with Vision Travel to plan your perfect holiday. Book customized trips, adventure treks, honeymoon packages, family vacations and corporate retreats. Call +91 93159 49833 or fill out our trip planning form."
+      path="/contact"
+      keywords="contact travel agency, book travel package, plan my trip India, travel inquiry, trip booking, Vision Travel contact, travel agent phone number, travel consultation, custom trip quote"
+    />
     <SiteHeader />
     <PalomarHero />
-    <section className="relative min-h-screen w-full overflow-hidden bg-[#06121a]">
+    <section className="relative min-h-screen w-full overflow-hidden bg-[#06121a]" aria-label="Contact Vision Travel - Plan your trip">
 
       {/* ── Background ── */}
       <div
