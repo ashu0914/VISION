@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
+import emailjs from '@emailjs/browser';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,35 +9,35 @@ import { Footer7 } from '@/components/ui/footer-7';
 import PalomarHero from '@/components/PalomarHero';
 import SiteHeader from '@/components/SiteHeader';
 
-// ── Social links: Instagram, LinkedIn, Facebook ──
+// ── Config ──
+const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+const OTP_TEMPLATE = import.meta.env.VITE_EMAILJS_OTP_TEMPLATE_ID;
+const CONTACT_TEMPLATE = import.meta.env.VITE_EMAILJS_CONTACT_TEMPLATE_ID;
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+
+// ── Social links ──
 const socialLinks = [
   {
-    id: '1',
-    name: 'Instagram',
+    id: '1', name: 'Instagram',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
       </svg>
     ),
     href: 'https://www.instagram.com/vision._travel',
   },
   {
-    id: '2',
-    name: 'LinkedIn',
+    id: '2', name: 'LinkedIn',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-        <rect x="2" y="9" width="4" height="12"/>
-        <circle cx="4" cy="4" r="2"/>
+        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>
       </svg>
     ),
     href: 'https://www.linkedin.com/in/vision-travel-14b961416',
   },
   {
-    id: '3',
-    name: 'Facebook',
+    id: '3', name: 'Facebook',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
@@ -49,60 +50,209 @@ const socialLinks = [
 const CONTACT_PHONE = "+91 93159 49833";
 const CONTACT_EMAIL = "vision.1820abhi@gmail.com";
 
-export default function ContactPage() {
-  const [formData, setFormData] = React.useState({
-    name: '',
-    email: '',
-    numberOfPax: '',
-    message: '',
-    tripType: [],
+// ── Generate 6-digit OTP ──
+function generateOTP() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+// ── Execute reCAPTCHA v3 ──
+function executeRecaptcha(action) {
+  return new Promise((resolve, reject) => {
+    if (!window.grecaptcha) return reject("reCAPTCHA not loaded");
+    window.grecaptcha.ready(() => {
+      window.grecaptcha
+        .execute(RECAPTCHA_SITE_KEY, { action })
+        .then(resolve)
+        .catch(reject);
+    });
   });
-  const [status, setStatus] = React.useState('idle'); // idle | sending | sent
+}
+
+export default function ContactPage() {
+  const [formData, setFormData] = useState({
+    name: '', email: '', numberOfPax: '', message: '', tripType: [],
+  });
+
+  // OTP state
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpInput, setOtpInput] = useState(['', '', '', '', '', '']);
+  const [otpError, setOtpError] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpTimer, setOtpTimer] = useState(0);
+  const generatedOtp = useRef('');
+  const otpExpiry = useRef(0);
+  const otpInputRefs = useRef([]);
+  const timerRef = useRef(null);
+
+  // Form status
+  const [status, setStatus] = useState('idle'); // idle | sending | sent | error
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Reset OTP if email changes
+    if (name === 'email') {
+      setOtpSent(false);
+      setOtpVerified(false);
+      setOtpInput(['', '', '', '', '', '']);
+      setOtpError('');
+    }
   };
 
   const handleCheckboxChange = (type, checked) => {
     setFormData((prev) => {
       const current = prev.tripType;
-      if (checked) {
-        return { ...prev, tripType: [...current, type] };
-      } else {
-        return { ...prev, tripType: current.filter((t) => t !== type) };
-      }
+      if (checked) return { ...prev, tripType: [...current, type] };
+      return { ...prev, tripType: current.filter((t) => t !== type) };
     });
   };
 
-  const handleSubmit = (e) => {
+  // ── Start countdown timer ──
+  const startTimer = (seconds) => {
+    setOtpTimer(seconds);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setOtpTimer((prev) => {
+        if (prev <= 1) { clearInterval(timerRef.current); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  // ── Send OTP ──
+  const handleSendOTP = async () => {
+    if (!formData.name || !formData.email) {
+      setOtpError('Please fill name and email first');
+      return;
+    }
+
+    setOtpLoading(true);
+    setOtpError('');
+
+    try {
+      // reCAPTCHA verification
+      await executeRecaptcha('send_otp');
+
+      // Generate OTP
+      const otp = generateOTP();
+      generatedOtp.current = otp;
+      otpExpiry.current = Date.now() + 5 * 60 * 1000; // 5 min
+
+      // Send OTP via EmailJS
+      await emailjs.send(SERVICE_ID, OTP_TEMPLATE, {
+        to_email: formData.email,
+        to_name: formData.name,
+        otp_code: otp,
+      }, PUBLIC_KEY);
+
+      setOtpSent(true);
+      startTimer(300); // 5 min countdown
+      setOtpInput(['', '', '', '', '', '']);
+      // Focus first OTP input
+      setTimeout(() => otpInputRefs.current[0]?.focus(), 100);
+    } catch (err) {
+      console.error('OTP send error:', err);
+      setOtpError('Failed to send OTP. Please try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // ── Handle OTP input ──
+  const handleOtpChange = (index, value) => {
+    if (!/^\d?$/.test(value)) return; // Only digits
+    const newOtp = [...otpInput];
+    newOtp[index] = value;
+    setOtpInput(newOtp);
+    setOtpError('');
+
+    // Auto-focus next
+    if (value && index < 5) {
+      otpInputRefs.current[index + 1]?.focus();
+    }
+
+    // Auto-verify when all 6 digits entered
+    if (newOtp.every((d) => d !== '') && newOtp.join('').length === 6) {
+      verifyOTP(newOtp.join(''));
+    }
+  };
+
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !otpInput[index] && index > 0) {
+      otpInputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e) => {
     e.preventDefault();
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    if (pasted.length === 6) {
+      const digits = pasted.split('');
+      setOtpInput(digits);
+      otpInputRefs.current[5]?.focus();
+      verifyOTP(pasted);
+    }
+  };
+
+  // ── Verify OTP ──
+  const verifyOTP = (code) => {
+    if (Date.now() > otpExpiry.current) {
+      setOtpError('OTP has expired. Please resend.');
+      return;
+    }
+    if (code === generatedOtp.current) {
+      setOtpVerified(true);
+      setOtpError('');
+      if (timerRef.current) clearInterval(timerRef.current);
+    } else {
+      setOtpError('Invalid OTP. Please try again.');
+      setOtpInput(['', '', '', '', '', '']);
+      setTimeout(() => otpInputRefs.current[0]?.focus(), 100);
+    }
+  };
+
+  // ── Submit Form ──
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!otpVerified) {
+      setOtpError('Please verify your email first');
+      return;
+    }
+
     setStatus('sending');
 
-    // TODO: Wire to Formspree, EmailJS, Resend, or your own API
-    // await fetch("https://formspree.io/f/xxxxxxx", {
-    //   method: "POST",
-    //   headers: { Accept: "application/json" },
-    //   body: new FormData(e.target),
-    // });
+    try {
+      await executeRecaptcha('submit_form');
 
-    setTimeout(() => {
+      await emailjs.send(SERVICE_ID, CONTACT_TEMPLATE, {
+        from_name: formData.name,
+        from_email: formData.email,
+        pax: formData.numberOfPax,
+        trip_type: formData.tripType.join(', ') || 'Not specified',
+        message: formData.message,
+      }, PUBLIC_KEY);
+
       setStatus('sent');
       setFormData({ name: '', email: '', numberOfPax: '', message: '', tripType: [] });
-    }, 600);
+      setOtpSent(false);
+      setOtpVerified(false);
+      setOtpInput(['', '', '', '', '', '']);
+    } catch (err) {
+      console.error('Submit error:', err);
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 3000);
+    }
   };
 
   const tripTypeOptions = [
-    'Adventure Trek',
-    'Beach Getaway',
-    'Honeymoon',
-    'Family Vacation',
-    'Solo Backpacking',
-    'Luxury Tour',
-    'Spiritual / Pilgrimage',
-    'Corporate Retreat',
-    'Other',
+    'Adventure Trek', 'Beach Getaway', 'Honeymoon',
+    'Family Vacation', 'Solo Backpacking', 'Luxury Tour',
+    'Spiritual / Pilgrimage', 'Corporate Retreat', 'Other',
   ];
+
+  const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
   return (
     <>
@@ -207,13 +357,85 @@ export default function ContactPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Your Name</Label>
-                  <Input id="name" name="name" placeholder="e.g. Rahul Sharma" value={formData.name} onChange={handleChange} required />
+                  <Input id="name" name="name" placeholder="e.g. Rahul Sharma" value={formData.name} onChange={handleChange} required disabled={otpVerified} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" placeholder="you@example.com" value={formData.email} onChange={handleChange} required />
+                  <Input id="email" name="email" type="email" placeholder="you@example.com" value={formData.email} onChange={handleChange} required disabled={otpVerified} />
                 </div>
               </div>
+
+              {/* ── OTP Section ── */}
+              {!otpVerified && (
+                <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10">
+                  <div className="flex items-center justify-between">
+                    <p className="text-white/70 text-sm font-medium">📧 Email Verification</p>
+                    {otpSent && otpTimer > 0 && (
+                      <span className="text-xs text-[#7fd8ff] font-mono">⏳ {formatTime(otpTimer)}</span>
+                    )}
+                  </div>
+
+                  {!otpSent ? (
+                    <Button
+                      type="button"
+                      onClick={handleSendOTP}
+                      disabled={otpLoading || !formData.email || !formData.name}
+                      className="w-full h-10 text-sm bg-[#7fd8ff] text-[#06121a] hover:bg-[#5cc4f0] font-semibold"
+                    >
+                      {otpLoading ? (
+                        <span className="flex items-center gap-2">
+                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                          Sending OTP...
+                        </span>
+                      ) : '🔐 Send OTP to Email'}
+                    </Button>
+                  ) : (
+                    <>
+                      <p className="text-white/50 text-xs">Enter the 6-digit code sent to <span className="text-[#7fd8ff]">{formData.email}</span></p>
+                      
+                      {/* OTP Input Boxes */}
+                      <div className="flex justify-center gap-2" onPaste={handleOtpPaste}>
+                        {otpInput.map((digit, idx) => (
+                          <input
+                            key={idx}
+                            ref={(el) => (otpInputRefs.current[idx] = el)}
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={1}
+                            value={digit}
+                            onChange={(e) => handleOtpChange(idx, e.target.value)}
+                            onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                            className="w-11 h-12 text-center text-lg font-bold rounded-lg bg-white/10 border border-white/20 text-white focus:border-[#7fd8ff] focus:outline-none focus:ring-1 focus:ring-[#7fd8ff] transition-all"
+                          />
+                        ))}
+                      </div>
+
+                      {/* Resend */}
+                      {otpTimer === 0 && (
+                        <button
+                          type="button"
+                          onClick={handleSendOTP}
+                          className="text-[#7fd8ff] text-xs hover:underline w-full text-center"
+                        >
+                          Didn't receive? Resend OTP
+                        </button>
+                      )}
+                    </>
+                  )}
+
+                  {otpError && (
+                    <p className="text-red-400 text-xs text-center">{otpError}</p>
+                  )}
+                </div>
+              )}
+
+              {/* Verified badge */}
+              {otpVerified && (
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                  <span className="text-emerald-400 text-lg">✅</span>
+                  <span className="text-emerald-300 text-sm font-medium">Email verified successfully!</span>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="numberOfPax">Number of Pax (Travellers)</Label>
@@ -251,15 +473,35 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={status === 'sending'}>
-                {status === 'sending' ? 'Sending…' : status === 'sent' ? '✅ Sent — thank you!' : 'Send Message'}
+              <Button
+                type="submit"
+                className="w-full h-11 text-base font-semibold"
+                disabled={status === 'sending' || !otpVerified}
+              >
+                {status === 'sending' ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                    Sending...
+                  </span>
+                ) : status === 'sent' ? '✅ Sent — thank you!' : status === 'error' ? '❌ Failed — try again' : 'Send Message'}
               </Button>
+
+              {!otpVerified && (
+                <p className="text-white/30 text-xs text-center">Please verify your email to send the message</p>
+              )}
 
               {status === 'sent' && (
                 <p className="text-[#7fd8ff] text-sm text-center animate-fade-in">
                   ✈ We'll get back to you within 24 hours!
                 </p>
               )}
+
+              {/* reCAPTCHA branding (required by Google) */}
+              <p className="text-white/20 text-[10px] text-center leading-tight">
+                Protected by reCAPTCHA. Google{' '}
+                <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy</a>{' & '}
+                <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline">Terms</a>.
+              </p>
             </form>
           </div>
         </div>
