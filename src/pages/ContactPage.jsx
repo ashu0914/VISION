@@ -55,17 +55,25 @@ function generateOTP() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 
-// ── Execute reCAPTCHA v3 ──
-function executeRecaptcha(action) {
-  return new Promise((resolve, reject) => {
-    if (!window.grecaptcha) return reject("reCAPTCHA not loaded");
-    window.grecaptcha.ready(() => {
-      window.grecaptcha
-        .execute(RECAPTCHA_SITE_KEY, { action })
-        .then(resolve)
-        .catch(reject);
+// ── Execute reCAPTCHA v3 (Graceful Fallback) ──
+async function tryRecaptcha(action) {
+  try {
+    if (!window.grecaptcha || !RECAPTCHA_SITE_KEY) return null;
+    return await new Promise((resolve) => {
+      window.grecaptcha.ready(() => {
+        window.grecaptcha
+          .execute(RECAPTCHA_SITE_KEY, { action })
+          .then(resolve)
+          .catch((err) => {
+            console.warn('reCAPTCHA execution warning:', err);
+            resolve(null);
+          });
+      });
     });
-  });
+  } catch (e) {
+    console.warn('reCAPTCHA error:', e);
+    return null;
+  }
 }
 
 export default function ContactPage() {
@@ -131,8 +139,8 @@ export default function ContactPage() {
     setOtpError('');
 
     try {
-      // reCAPTCHA verification
-      await executeRecaptcha('send_otp');
+      // reCAPTCHA verification (non-blocking)
+      await tryRecaptcha('send_otp');
 
       // Generate OTP
       const otp = generateOTP();
@@ -140,20 +148,22 @@ export default function ContactPage() {
       otpExpiry.current = Date.now() + 5 * 60 * 1000; // 5 min
 
       // Send OTP via EmailJS
-      await emailjs.send(SERVICE_ID, OTP_TEMPLATE, {
+      const response = await emailjs.send(SERVICE_ID, OTP_TEMPLATE, {
         to_email: formData.email,
         to_name: formData.name,
         otp_code: otp,
       }, PUBLIC_KEY);
 
+      console.log('EmailJS OTP Response:', response);
+
       setOtpSent(true);
       startTimer(300); // 5 min countdown
       setOtpInput(['', '', '', '', '', '']);
-      // Focus first OTP input
       setTimeout(() => otpInputRefs.current[0]?.focus(), 100);
     } catch (err) {
-      console.error('OTP send error:', err);
-      setOtpError('Failed to send OTP. Please try again.');
+      console.error('OTP send error detail:', err);
+      const errMsg = err?.text || err?.message || 'Failed to send OTP. Check email or try again.';
+      setOtpError(errMsg);
     } finally {
       setOtpLoading(false);
     }
@@ -224,7 +234,7 @@ export default function ContactPage() {
     setStatus('sending');
 
     try {
-      await executeRecaptcha('submit_form');
+      await tryRecaptcha('submit_form');
 
       await emailjs.send(SERVICE_ID, CONTACT_TEMPLATE, {
         from_name: formData.name,
@@ -238,7 +248,6 @@ export default function ContactPage() {
       setFormData({ name: '', email: '', numberOfPax: '', message: '', tripType: [] });
       setOtpSent(false);
       setOtpVerified(false);
-      setOtpInput(['', '', '', '', '', '']);
     } catch (err) {
       console.error('Submit error:', err);
       setStatus('error');
