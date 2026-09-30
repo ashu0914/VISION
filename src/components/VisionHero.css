@@ -1,0 +1,17 @@
+.vh-hero { position: relative; height: 100vh; height: 100dvh; width: 100%; overflow: hidden; background: #06121a; }
+.vh-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transform-origin: center; will-change: transform; transition: opacity 0.7s ease; }
+.vh-canvas.is-ready { opacity: 1; }
+.vh-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,.45), transparent 35%, rgba(0,0,0,.55)); }
+.vh-layer { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 0 8%; text-align: center; pointer-events: none; will-change: transform, filter, opacity; }
+.vh-title { margin: 0; max-width: 56rem; font-size: clamp(2.2rem, 6.5vw, 4.5rem); font-weight: 600; line-height: 1.08; letter-spacing: -0.02em; color: #fff; text-wrap: balance; text-shadow: 0 4px 30px rgba(0,0,0,.55); }
+.vh-tagline { margin: 0; max-width: 40rem; font-size: clamp(1.4rem, 3.6vw, 2.4rem); font-weight: 500; letter-spacing: -0.01em; color: #fff; text-wrap: balance; text-shadow: 0 4px 24px rgba(0,0,0,.6); }
+.vh-hint { position: absolute; left: 50%; bottom: clamp(24px, 7vh, 56px); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 0.875rem; font-weight: 500; color: rgba(255,255,255,.8); pointer-events: none; transition: opacity 0.5s ease; }
+.vh-bounce { color: rgba(255,255,255,.85); animation: vh-bounce 1.6s ease-in-out infinite; }
+@keyframes vh-bounce { 0%, 100% { transform: translateY(0); opacity: .5; } 50% { transform: translateY(5px); opacity: 1; } }
+.vh-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: rgba(255,255,255,.15); }
+.vh-bar-fill { height: 100%; width: 100%; background: rgba(255,255,255,.9); transform: scaleX(0); transform-origin: left center; }
+@media (prefers-reduced-motion: reduce) { .vh-bounce { animation: none; } }
+
+.vh-actions { position: absolute; left: 20px; right: 20px; bottom: clamp(24px, 7vh, 56px); z-index: 2; display: flex; flex-wrap: wrap; gap: 12px; }
+@media (min-width: 768px) { .vh-actions { left: 40px; right: auto; } }
+@media (max-width: 639px) { .vh-hint { bottom: calc(clamp(24px, 7vh, 56px) + 112px); } }

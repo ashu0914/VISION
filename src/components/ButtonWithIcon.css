@@ -1,0 +1,50 @@
+.bwi {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  height: 48px;
+  padding: 4px 56px 4px 24px;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  cursor: pointer;
+  font: 500 0.875rem/1 inherit;
+  font-family: inherit;
+  text-decoration: none;
+  transition: padding 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.bwi:hover { padding: 4px 24px 4px 56px; }
+.bwi:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+.bwi-label { position: relative; z-index: 1; white-space: nowrap; }
+
+.bwi-icon {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.bwi:hover .bwi-icon { right: calc(100% - 44px); transform: rotate(45deg); }
+
+.bwi--primary { background: #fff; color: #0f172a; }
+.bwi--primary .bwi-icon { background: #0f172a; color: #fff; }
+
+.bwi--glass {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+.bwi--glass .bwi-icon { background: #fff; color: #0f172a; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bwi, .bwi-icon { transition: none; }
+}

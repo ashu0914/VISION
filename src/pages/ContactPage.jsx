@@ -1,0 +1,287 @@
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Footer7 } from '@/components/ui/footer-7';
+import PalomarHero from '@/components/PalomarHero';
+import SiteHeader from '@/components/SiteHeader';
+
+// ── Social links: Instagram, LinkedIn, Facebook ──
+const socialLinks = [
+  {
+    id: '1',
+    name: 'Instagram',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+      </svg>
+    ),
+    href: 'https://www.instagram.com/vision._travel',
+  },
+  {
+    id: '2',
+    name: 'LinkedIn',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+        <rect x="2" y="9" width="4" height="12"/>
+        <circle cx="4" cy="4" r="2"/>
+      </svg>
+    ),
+    href: 'https://www.linkedin.com/in/vision-travel-14b961416',
+  },
+  {
+    id: '3',
+    name: 'Facebook',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+      </svg>
+    ),
+    href: 'https://www.facebook.com/share/1ErEoH5VKm/',
+  },
+];
+
+const CONTACT_PHONE = "+91 93159 49833";
+const CONTACT_EMAIL = "vision.1820abhi@gmail.com";
+
+export default function ContactPage() {
+  const [formData, setFormData] = React.useState({
+    name: '',
+    email: '',
+    numberOfPax: '',
+    message: '',
+    tripType: [],
+  });
+  const [status, setStatus] = React.useState('idle'); // idle | sending | sent
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCheckboxChange = (type, checked) => {
+    setFormData((prev) => {
+      const current = prev.tripType;
+      if (checked) {
+        return { ...prev, tripType: [...current, type] };
+      } else {
+        return { ...prev, tripType: current.filter((t) => t !== type) };
+      }
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setStatus('sending');
+
+    // TODO: Wire to Formspree, EmailJS, Resend, or your own API
+    // await fetch("https://formspree.io/f/xxxxxxx", {
+    //   method: "POST",
+    //   headers: { Accept: "application/json" },
+    //   body: new FormData(e.target),
+    // });
+
+    setTimeout(() => {
+      setStatus('sent');
+      setFormData({ name: '', email: '', numberOfPax: '', message: '', tripType: [] });
+    }, 600);
+  };
+
+  const tripTypeOptions = [
+    'Adventure Trek',
+    'Beach Getaway',
+    'Honeymoon',
+    'Family Vacation',
+    'Solo Backpacking',
+    'Luxury Tour',
+    'Spiritual / Pilgrimage',
+    'Corporate Retreat',
+    'Other',
+  ];
+
+  return (
+    <>
+    <SiteHeader />
+    <PalomarHero />
+    <section className="relative min-h-screen w-full overflow-hidden bg-[#06121a]">
+
+      {/* ── Background ── */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage:
+            'url(https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920&q=80)',
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-[#06121a]/70 via-[#06121a]/50 to-[#06121a]/95" />
+
+        {/* Animated floating particles */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute bg-white/15 rounded-full"
+              style={{
+                width: `${Math.random() * 16 + 6}px`,
+                height: `${Math.random() * 16 + 6}px`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animation: `contactBubble ${Math.random() * 18 + 12}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 8}s`,
+                opacity: 0,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* ── Main Content ── */}
+      <div className="relative z-10 flex flex-col items-center w-full min-h-screen pt-28 pb-12 px-4 md:px-8 lg:px-12">
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-6xl flex-grow">
+          {/* Left: Title + Phone */}
+          <div className="flex flex-col justify-end p-4 lg:p-8">
+            <h1
+              className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight max-w-lg"
+              style={{ fontFamily: 'var(--font-serif)' }}
+            >
+              Let's plan your next unforgettable journey
+            </h1>
+            <p className="mt-6 text-white/60 text-lg max-w-md">
+              From mountain trails to coastal escapes — tell us your dream, we'll build the route.
+            </p>
+
+            {/* Phone card */}
+            <a
+              href={`tel:${CONTACT_PHONE.replace(/\s/g, '')}`}
+              className="mt-8 inline-flex items-center gap-3 px-5 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors w-fit no-underline"
+            >
+              <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-white/10 text-[#7fd8ff]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+              </span>
+              <div>
+                <span className="block text-xs text-white/50 uppercase tracking-wide">Call us</span>
+                <span className="text-white font-medium">{CONTACT_PHONE}</span>
+              </div>
+            </a>
+          </div>
+
+          {/* Right: Form Card */}
+          <div className="bg-[#06121a]/90 backdrop-blur-xl p-6 md:p-8 rounded-2xl shadow-2xl border border-white/10">
+            <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
+              Let's talk! ✈️
+            </h2>
+
+            {/* Email + Socials */}
+            <div className="mb-6">
+              <p className="text-white/50 text-sm mb-2">Mail us at</p>
+              <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#7fd8ff] hover:underline font-medium">
+                {CONTACT_EMAIL}
+              </a>
+              <div className="flex items-center gap-3 mt-4">
+                <span className="text-white/40 text-sm">OR</span>
+                {socialLinks.map((link) => (
+                  <Button key={link.id} variant="outline" size="icon" asChild>
+                    <a href={link.href} target="_blank" rel="noopener noreferrer" aria-label={link.name}>
+                      {link.icon}
+                    </a>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <hr className="my-6 border-white/10" />
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <p className="text-white/50 text-sm">Tell us about your dream trip</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Your Name</Label>
+                  <Input id="name" name="name" placeholder="e.g. Rahul Sharma" value={formData.name} onChange={handleChange} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" name="email" type="email" placeholder="you@example.com" value={formData.email} onChange={handleChange} required />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="numberOfPax">Number of Pax (Travellers)</Label>
+                <Input id="numberOfPax" name="numberOfPax" type="number" min="1" placeholder="e.g. 4" value={formData.numberOfPax} onChange={handleChange} required />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="message">Where do you want to go?</Label>
+                <Textarea
+                  id="message"
+                  name="message"
+                  placeholder="Dates, destinations, budget, group size — anything that helps us plan your perfect trip..."
+                  className="min-h-[100px]"
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-white/50 text-sm">I'm looking for...</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {tripTypeOptions.map((option) => (
+                    <div key={option} className="flex items-center gap-2">
+                      <Checkbox
+                        id={option.replace(/[\s\/]/g, '-').toLowerCase()}
+                        checked={formData.tripType.includes(option)}
+                        onCheckedChange={(checked) => handleCheckboxChange(option, checked)}
+                      />
+                      <Label htmlFor={option.replace(/[\s\/]/g, '-').toLowerCase()} className="text-sm font-normal cursor-pointer">
+                        {option}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={status === 'sending'}>
+                {status === 'sending' ? 'Sending…' : status === 'sent' ? '✅ Sent — thank you!' : 'Send Message'}
+              </Button>
+
+              {status === 'sent' && (
+                <p className="text-[#7fd8ff] text-sm text-center animate-fade-in">
+                  ✈ We'll get back to you within 24 hours!
+                </p>
+              )}
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {/* Bubble animation keyframes */}
+      <style>{`
+        @keyframes contactBubble {
+          0% { transform: translateY(0) scale(0.5); opacity: 0; }
+          20% { opacity: 0.6; }
+          100% { transform: translateY(-100vh) scale(1.2); opacity: 0; }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.5s ease both;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </section>
+    <Footer7 />
+    </>
+  );
+}
