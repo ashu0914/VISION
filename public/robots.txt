@@ -7,7 +7,7 @@ Disallow: /api/
 Disallow: /.env
 
 # Sitemaps
-Sitemap: https://visiontravel.in/sitemap.xml
+Sitemap: https://vision-x57u.vercel.app/sitemap.xml
 
 # Crawl-delay (optional, polite request)
 Crawl-delay: 1

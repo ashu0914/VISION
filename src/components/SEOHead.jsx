@@ -9,7 +9,7 @@ import { useEffect } from "react";
  */
 
 const SITE_NAME = "Vision Travel";
-const BASE_URL = "https://visiontravel.in";
+const BASE_URL = "https://vision-x57u.vercel.app";
 const DEFAULT_IMAGE = `${BASE_URL}/image/vision-logo-circle.jpg`;
 
 export default function SEOHead({
