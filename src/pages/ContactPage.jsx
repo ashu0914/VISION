@@ -150,6 +150,8 @@ export default function ContactPage() {
       // Send OTP via EmailJS
       const response = await emailjs.send(SERVICE_ID, OTP_TEMPLATE, {
         to_email: formData.email,
+        email: formData.email,
+        user_email: formData.email,
         to_name: formData.name,
         otp_code: otp,
       }, PUBLIC_KEY);
